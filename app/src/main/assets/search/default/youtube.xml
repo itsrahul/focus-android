@@ -1,0 +1,18 @@
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
+<ShortName>Youtube</ShortName>
+<Image width="16" height="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAABdCAYAAABtnm46AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAANpSURBVHhe7dzNS1RRHMbx38zojJv+A2sTQSURZWYSpYVKYGFBRdZCIjdBuKjAgiCMNkW1KCvp3SINEyUqKA1SIiKooEUQhBUlvVj0sjDm/eY9nstEaY46szjneT4b7/xmeb/elwNnfL/ypzlCsPz6L4FiAOAYADgGAI4BgGMA4BgAOAYAjgGAYwDgGAA4BgCOAYBjAOAYADgGAI4BgGMA4BgAOAYAjgGAYwDgGACwwIYtDACZ8+kDA4D2ZZABIHM+fzQ7gJyaWglUrxcJhvSEJsL5/k2M3RvoPsAEj51Wx87AO4k3H5d4W4tINKJmlB5jrwD+ufP0kYgvf4bkHjwieX1P1VWBV4T0WfUMoEI4fEKF4F4haHxWPgS6Ibi3h7xehjAeq98CfDNnpUJwHxbpH1YH4FEhNF0YCaFqrZ6SCyIAjwqh+bKEeh4xBA0qAI9/dkEqhMoqPcUEGYBHhXC+TUK3eiWwslJPsUAH4PHPXyjBlg4Vgn/ZCj3FwAD+4IYQar0hoc5umBAYwCj8RUtSIRSV6KmdGMB/qBA670ro2k1rQ2AAafAvLU2FsKhYT+3AACZAhdDVI8ErndaEwAAmIVBWPhLCxXb1KmkyBjAFgfJVajHJ5BAYQAZ4IeQ27NcTczCADMrZsUt8+dP1JzMwgAyKt14SZ+C9/mQGBpAByYd9EtlcLbGGej0xBwOYgsS9OxJZVyGRTWsk+eC+npqFAUxCoqtdIhUlEt26UZJPHuupmRhAuoaG1D0+XFIg0fo6Sb58ob8wGwMYj3viz52ScPlidY837SFvPAxgDM7PHxJvOqr+42ONe6w78R4G8Bfn66DEDuyVcPEciR1qVNunbMYANHd7WWzf7uETXyDxsyfVpR8BfABO/yuJ7twu4dJCibecgdtbCBtA8vkziW6rkXBZoSSuX4XdVAoXgLdqF1ldJonu23qKCyYAG1btssH6AGxatcsGawNQq3bLF1i1apcNdgXgrdq5izfuqt2bfv0FjcXYAJy3r/URzqpdNhj7G0Huz8Dk1NYNv77FJN4x/BoHsnCTaeYGQBkB8xpIo2MA4BgAOAYAjgGAYwDgGAA4BgCOAYBjAOAYADgGAI4BgGMA4BgAOAYAjgGAYwDgGAA4BgCOAYBjAOAYADgGAI4BgGMA4BgANJHflQUDJ3rp8KQAAAAASUVORK5CYII=</Image>
+<Url type="application/x-suggestions+json" template="https://www.youtube.com/osjson.aspx">
+  <Param name="query" value="{searchTerms}"/>
+  <Param name="language" value="{moz:locale}"/>
+</Url>
+<Url type="text/html" method="GET" template="https://www.youtube.com/search">
+  <Param name="q" value="{searchTerms}" />
+  <Param name="pc" value="MOZB" />
+  <Param name="form" value="MOZMBA" />
+</Url>
+<SearchForm>https://www.youtube.com</SearchForm>
+</SearchPlugin>

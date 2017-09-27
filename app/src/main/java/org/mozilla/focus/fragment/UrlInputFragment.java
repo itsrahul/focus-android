@@ -8,9 +8,12 @@ package org.mozilla.focus.fragment;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
@@ -36,12 +39,16 @@ import org.mozilla.focus.session.Session;
 import org.mozilla.focus.session.SessionManager;
 import org.mozilla.focus.session.Source;
 import org.mozilla.focus.telemetry.TelemetryWrapper;
-import org.mozilla.focus.utils.Settings;
 import org.mozilla.focus.utils.ThreadUtils;
 import org.mozilla.focus.utils.UrlUtils;
 import org.mozilla.focus.utils.ViewUtils;
 import org.mozilla.focus.widget.InlineAutocompleteEditText;
 import org.mozilla.focus.widget.ResizableKeyboardLinearLayout;
+
+import java.util.ArrayList;
+import java.util.Locale;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * Fragment for displaying he URL input controls.
@@ -60,6 +67,8 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
     private static final String ANIMATION_BROWSER_SCREEN = "browser_screen";
 
     private static final int ANIMATION_DURATION = 200;
+
+    private static final int REQ_CODE_SPEECH_INPUT = 100;
 
     public static UrlInputFragment createWithoutSession() {
         final Bundle arguments = new Bundle();
@@ -115,6 +124,12 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
     private View toolbarBackgroundView;
     private View menuView;
 
+    View speechButton;
+
+    View qrCodeButton;
+
+//    private IntentIntegrator qrScan;
+
     private @Nullable PopupMenu displayedPopupMenu;
 
     private volatile boolean isAnimating;
@@ -158,6 +173,15 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
 
         menuView = view.findViewById(R.id.menu);
 
+        speechButton = view.findViewById(R.id.speechButton);
+        speechButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSpeechToText();
+            }
+        });
+
+
         urlInputContainerView = view.findViewById(R.id.url_input_container);
         urlInputContainerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
@@ -187,14 +211,49 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
         urlView.setOnCommitListener(this);
 
         if (session != null) {
-                urlView.setText(session.isSearch()
+            urlView.setText(session.isSearch()
                     ? session.getSearchTerms()
                     : session.getUrl().getValue());
 
-                clearView.setVisibility(View.VISIBLE);
+            clearView.setVisibility(View.VISIBLE);
         }
 
         return view;
+    }
+
+    private  void startSpeechToText() {
+
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak Where You Want To Go!");
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //super.onActivityResult(requestCode, resultCode, data);
+
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT:
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    urlView.setText(result.get(0));
+                    if(urlView != null) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse("http://" + urlView.getText().toString()));
+                        startActivity(intent);
+                    }
+
+                }
+                break;
+        }
+
+
     }
 
     @Override
@@ -225,23 +284,23 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
         return false;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        if (!Settings.getInstance(getContext()).shouldShowFirstrun()) {
-            // Only show keyboard if we are not displaying the first run tour on top.
-            showKeyboard();
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
-        // Reset the keyboard layout to avoid a jarring animation when the view is started again. (#1135)
-        keyboardLinearLayout.reset();
-    }
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//
+//        if (!Settings.getInstance(getContext()).shouldShowFirstrun()) {
+//            // Only show keyboard if we are not displaying the first run tour on top.
+//            showKeyboard();
+//        }
+//    }
+//
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//
+//        // Reset the keyboard layout to avoid a jarring animation when the view is started again. (#1135)
+//        keyboardLinearLayout.reset();
+//    }
 
     public void showKeyboard() {
         ViewUtils.showKeyboard(urlView);
@@ -250,6 +309,11 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+
+//            case R.id.qrCodeButton:
+//                qrScan.initiateScan();
+//                break;
+
             case R.id.clear:
                 clear();
                 break;

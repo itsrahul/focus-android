@@ -109,6 +109,7 @@
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/content_description_microphone"/>
 
+
                 <ImageButton
                     android:id="@+id/clear"
                     android:layout_width="40dp"

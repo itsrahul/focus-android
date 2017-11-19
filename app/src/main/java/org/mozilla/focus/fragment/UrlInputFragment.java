@@ -125,7 +125,7 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
     private View menuView;
 
     View speechButton;
-
+    View speechButton2;
     View qrCodeButton;
 
 //    private IntentIntegrator qrScan;
@@ -174,12 +174,15 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
         menuView = view.findViewById(R.id.menu);
 
         speechButton = view.findViewById(R.id.speechButton);
-        speechButton.setOnClickListener(new View.OnClickListener() {
+        speechButton.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View v) {
                 startSpeechToText();
             }
-        });
+        }
+        );
+
 
 
         urlInputContainerView = view.findViewById(R.id.url_input_container);
@@ -226,7 +229,7 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak Where You Want To Go!");
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "I'm Listening! Speak Where You Want To Go?");
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException e) {
@@ -234,19 +237,28 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
         }
     }
 
+
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        //super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
             case REQ_CODE_SPEECH_INPUT:
                 if (resultCode == RESULT_OK && null != data) {
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     urlView.setText(result.get(0));
-                    if(urlView != null) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse("http://" + urlView.getText().toString()));
-                        startActivity(intent);
+                    if ( urlView.getText().toString().contains(".com") || urlView.getText().toString().contains(".org") ) {
+                        if (urlView != null) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse("http://" + urlView.getText().toString()));
+                            startActivity(intent);
+                        }
+                    } else {
+                        if (urlView != null) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse("https://www.google.co.in/search?q=" + urlView.getText().toString()));
+                            startActivity(intent);
+                        }
                     }
 
                 }
@@ -284,24 +296,6 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
         return false;
     }
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//
-//        if (!Settings.getInstance(getContext()).shouldShowFirstrun()) {
-//            // Only show keyboard if we are not displaying the first run tour on top.
-//            showKeyboard();
-//        }
-//    }
-//
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//
-//        // Reset the keyboard layout to avoid a jarring animation when the view is started again. (#1135)
-//        keyboardLinearLayout.reset();
-//    }
-
     public void showKeyboard() {
         ViewUtils.showKeyboard(urlView);
     }
@@ -309,10 +303,6 @@ public class UrlInputFragment extends LocaleAwareFragment implements View.OnClic
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-
-//            case R.id.qrCodeButton:
-//                qrScan.initiateScan();
-//                break;
 
             case R.id.clear:
                 clear();
